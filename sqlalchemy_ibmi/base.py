@@ -1355,28 +1355,25 @@ class IBMiDb2Dialect(default.DefaultDialect):
 
     @reflection.cache
     def get_foreign_keys(self, connection, table_name, schema=None, **kw):
+        # Edits from https://github.com/amukherjee28/python-ibmdbsa/commit/9bc6782e7014365d41be2dd4ffb3c715f1bef7da
         default_schema = self.default_schema_name
         current_schema = self.denormalize_name(schema or default_schema)
         default_schema = self.normalize_name(default_schema)
         table_name = self.denormalize_name(table_name)
         sysfkeys = self.sys_foreignkeys
-        query = select(
-            [
-                sysfkeys.c.fkname,
-                sysfkeys.c.fktabschema,
-                sysfkeys.c.fktabname,
-                sysfkeys.c.fkcolname,
-                sysfkeys.c.pkname,
-                sysfkeys.c.pktabschema,
-                sysfkeys.c.pktabname,
-                sysfkeys.c.pkcolname,
-            ],
-            and_(
-                sysfkeys.c.fktabschema == current_schema,
-                sysfkeys.c.fktabname == table_name,
-            ),
-            order_by=[sysfkeys.c.colno],
-        )
+        systbl = self.sys_tables
+        query = sql.select([sysfkeys.c.fkname, sysfkeys.c.fktabschema, \
+                            sysfkeys.c.fktabname, sysfkeys.c.fkcolname, \
+                            sysfkeys.c.pkname, sysfkeys.c.pktabschema, \
+                            sysfkeys.c.pktabname, sysfkeys.c.pkcolname]) \
+            .select_from(
+                join(systbl,sysfkeys, systbl.c.tabname == sysfkeys.c.pktabname)
+            ) \
+            .where(systbl.c.type == 'T') \
+            .where(systbl.c.tabschema == current_schema) \
+            .where(sysfkeys.c.fktabname == table_name) \
+            .order_by(systbl.c.tabname)
+
         fschema = {}
         for row in connection.execute(query):
             if row[0] not in fschema:
