@@ -1370,7 +1370,7 @@ class IBMiDb2Dialect(default.DefaultDialect):
             .select_from(
                 join(systbl,sysfkeys, systbl.c.tabname == sysfkeys.c.pktabname)
             ) \
-            .where(systbl.c.type == 'T') \
+            .where(systbl.c.tabtype == 'T') \
             .where(systbl.c.tabschema == current_schema) \
             .where(sysfkeys.c.fktabname == table_name) \
             .order_by(systbl.c.tabname)
