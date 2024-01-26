@@ -185,6 +185,7 @@ from collections import defaultdict
 from distutils.util import strtobool
 
 from sqlalchemy import (
+    join,
     select,
     schema as sa_schema,
     exc,
