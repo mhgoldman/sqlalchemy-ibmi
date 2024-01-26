@@ -1362,7 +1362,7 @@ class IBMiDb2Dialect(default.DefaultDialect):
         table_name = self.denormalize_name(table_name)
         sysfkeys = self.sys_foreignkeys
         systbl = self.sys_tables
-        query = sql.select([sysfkeys.c.fkname, sysfkeys.c.fktabschema, \
+        query = select([sysfkeys.c.fkname, sysfkeys.c.fktabschema, \
                             sysfkeys.c.fktabname, sysfkeys.c.fkcolname, \
                             sysfkeys.c.pkname, sysfkeys.c.pktabschema, \
                             sysfkeys.c.pktabname, sysfkeys.c.pkcolname]) \
